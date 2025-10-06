@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CalZen 靜食記</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#dfeede">
+  <link rel="icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="container">
+    <header class="top">
+      <div class="brand">
+        <img src="icon-192.png" alt="CalZen" class="logo" />
+        <div>
+          <h1>CalZen</h1>
+          <p class="sub">靜食記 — 溫柔記錄你的每一餐</p>
+        </div>
+      </div>
+      <div id="dateLabel" class="date"></div>
+    </header>
+
+    <section class="card bmr-card">
+      <div class="card-head"><h2>基礎代謝率 (BMR)</h2></div>
+      <div class="card-body">
+        <div class="row">
+          <label>目前 BMR</label>
+          <input id="bmrInput" type="number" placeholder="1500">
+        </div>
+        <button id="toggleBmrCalc" class="btn subtle">自動計算 BMR</button>
+
+        <div id="bmrCalc" class="hidden">
+<br>
+<br>
+          <div class="grid">
+            <select id="gender">
+              <option value="male">男性</option>
+              <option value="female">女性</option>
+            </select>
+            <input id="ageInput" type="number" placeholder="年齡 (歲)">
+            <input id="weightInput" type="number" placeholder="體重 (公斤)">
+            <input id="heightInput" type="number" placeholder="身高 (公分)">
+          </div>
+          <div id="calculatedBmr" class="muted right" data-bmr="0"></div>
+          <button id="setBmrBtn" class="btn subtle" disabled>設定為目前 BMR</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card food-card">
+      <div class="card-head"><h2>食物攝取</h2></div>
+      <div class="card-body">
+        <div class="row">
+          <input id="searchInput" type="text" placeholder="搜尋食物 (例如: 無糖豆漿)">
+        </div>
+        <div id="searchResults" class="list"></div>
+
+        <div class="list" id="foodList"></div>
+
+<br>
+
+        <h3>手動新增</h3>
+<br>
+        <div class="grid">
+          <input id="foodName" type="text" placeholder="食物名稱">
+          <input id="foodCal" type="number" placeholder="熱量 (卡)">
+        </div>
+        <button id="addFoodBtn" class="btn subtle">新增食物</button>
+      </div>
+    </section>
+    
+    <section class="card ex-card">
+      <div class="card-head"><h2>運動消耗</h2></div>
+      <div class="card-body">
+        
+        <br>
+      <h3>新增運動</h3>
+<br>
+<div class="grid">
+  <select id="exType">
+    <option value="steps">步數 (步)</option>
+    <option value="hiit">HIIT/其他 (卡)</option>
+  </select>
+  <input id="exValue" type="number" placeholder="填寫數值" >
+</div>
+
+
+<div class="row" style="flex-direction: column; gap: 4px; margin-bottom: 12px;">
+  <label for="jogMin" style="font-size: 0.9em; color: var(--muted); margin-top: 5px;">超慢跑分鐘數 (選填)</label>
+  <input id="jogMin" type="number" placeholder="分鐘數">
+</div>
+
+
+    <button id="addExBtn" class="btn subtle">新增運動</button>
+    <br>
+    <div class="list" id="exerciseList"></div>
+  </div>
+</section>
+
+    <section class="card summary-card">
+      <div class="card-head"><h2>今日總結</h2></div>
+      <div class="card-body">
+        <div class="summary">
+          <div class="row">
+            <div>淨攝取熱量</div>
+            <div id="displayIntake">0</div>
+          </div>
+          <div class="row">
+            <div>總消耗熱量</div>
+            <div id="totalExpenditure">0</div>
+          </div>
+          <div id="bmrLine" class="muted right">BMR 0 + 運動 0</div>
+        </div>
+
+        <div id="deficitCard" class="deficit neutral">
+          <div class="defVal" id="deficitValue">0</div>
+          <div id="deficitText">尚未達標</div>
+        </div>
+
+        <button id="saveBtn" class="btn primary">儲存今日記錄</button>
+      </div>
+    </section>
+
+    <section class="card month-card">
+      <div class="card-head"><h2>本月統計</h2></div>
+      <div class="card-body">
+        <div id="monthStats" class="list"></div>
+      </div>
+    </section>
+
+    <footer class="foot">離線儲存 · 可加入主畫面  Yunamail Design 2025</footer>
+  </main>
+
+  <template id="foodTpl">
+    <div class="item">
+      <div><span class="name"></span></div>
+      <div class="meta"><span class="cal"></span><button class="del">刪除</button></div>
+    </div>
+  </template>
+
+  <template id="exTpl">
+    <div class="item">
+      <div><span class="name"></span></div>
+      <div class="meta"><span class="cal"></span><button class="del">刪除</button></div>
+    </div>
+  </template>
+
+  <template id="monthTpl">
+    <div class="item">
+      <div><strong></strong><div class="muted"></div></div>
+      <div class="meta"><div></div></div>
+    </div>
+  </template>
+
+  <script src="app.js"></script>
+  <script>
+    if('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('service-worker.js');
+      });
+    }
+  </script>
+</body>
+</html>

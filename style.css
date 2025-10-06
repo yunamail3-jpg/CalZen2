@@ -1,0 +1,220 @@
+/* CalZen style v2 - 禪意清爽 (固定淺色模式，字體放大，優化手機間距與輸入框樣式) */
+
+/* If you want to include Noto Sans TC offline:
+   - place NotoSansTC-Regular.woff2 into /fonts/
+   - the @font-face below will load it automatically.
+   If you don't add the file, system fallback fonts will be used.
+*/
+@font-face{
+  font-family: 'NotoSansTC';
+  src: url('fonts/NotoSansTC-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 固定使用淺色主題 (Light Theme) */
+:root{
+  --bg: #f9faf9; /* 淺色背景 */
+  --paper: #ffffff; /* 卡片白色背景 */
+  --muted: #4a4a3f; /* 深色文字/輔助色 */
+  --accent: #ff9800; /* 主題橘色 (原 --accent: #a3b18a;) */
+  --soft: #ffe0b2; /* 柔和淺橘色 (原 --soft: #dfeede;) */
+  --glass: rgba(255,255,255,0.7);
+  --text: #3f4a42; /* 主要深色文字 */
+  --primary: #e65100; /* 主要按鈕文字深橘色 (原 --primary: #587d42;) */
+}
+
+/* 移除 @media (prefers-color-scheme: dark) 區塊，以防止切換到深色模式 */
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  /* 將基礎字體放大 */
+  font-size: 18px; 
+  font-family: 'NotoSansTC', system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  line-height:1.4;
+  background:var(--bg);
+  color:var(--text);
+}
+h1, h2, h3{margin:0;font-weight:600;line-height:1.2}
+h1{font-size:1.8em}
+h2{font-size:1.4em}
+.sub, .muted{color:var(--muted);font-size:0.9em}
+
+.container{max-width:600px;margin:0 auto;padding:12px}
+
+.top{display:flex;justify-content:space-between;align-items:center;padding:12px 0;margin-bottom:16px} 
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:36px;height:36px}
+.date{font-weight:600;color:var(--primary);font-size:1.2em} 
+
+
+
+.card{
+  /* 增加卡片底部間距 */
+  margin-bottom:24px; 
+  border-radius:15px;
+  background:var(--paper);
+  box-shadow:0 6px 15px rgba(0,0,0,0.05);
+  border:1px solid var(--soft);
+}
+.card-head{
+  padding:12px 15px;
+  border-bottom:1px solid var(--soft);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.card-body{padding:15px}
+
+/* Flex 排版優化 (移除原先錯誤的 .row 覆蓋，修正排版問題) */
+.row{
+  display:flex;
+  /* 增加 row 內元件間距 */
+  gap: 12px; 
+  /* 增加 row 底部間距 */
+  margin-bottom:12px; 
+  flex-wrap: wrap; /* 允許換行 */
+}
+.grid{
+  display:flex;
+  /* 增加 grid 內元件間距 */
+  gap: 12px; 
+  /* 增加 grid 底部間距 */
+  margin-bottom:12px; 
+  flex-wrap:wrap
+}
+.grid > *{
+  flex:1 1 100%; /* 預設佔滿寬度 */
+  min-width: 120px; /* 最小寬度確保在空間足夠時可以水平排列 */
+}
+
+/* 確保標籤不會被擠壓而斷行 */
+.row label{
+  flex: none; 
+  align-self: center;
+  white-space: nowrap; /* 強制不換行 */
+}
+
+/* 統一 Select 和 Input 欄位樣式 (美化輸入框) */
+input[type="number"], input[type="text"], select{
+  padding:12px; /* 增加輸入框高度 */
+  border-radius:8px;
+  border:1px solid #d0d7d0; /* 略微深色的邊框 */
+  flex:1;
+  background:var(--paper); /* 白色背景 */
+  color:var(--text);
+  font-size:1em;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* 柔和內陰影 */
+  
+  /* 針對 Select 樣式統一的關鍵修正 */
+  -webkit-appearance: none; 
+  -moz-appearance: none;    
+  appearance: none;         
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%234a4a3f' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+input::placeholder{color:rgba(74,74,63,0.5)}
+
+/* 按鈕美化 */
+.btn{
+  border:none;
+  padding:12px 15px;
+  border-radius:12px; /* 圓角加大 */
+  font-weight:600;
+  cursor:pointer;
+  transition:all 0.2s;
+  width:100%;
+  /* 增加按鈕上方的間距 */
+  margin-top:15px; 
+  font-size:1em; 
+}
+.btn.primary{
+  background:var(--accent); /* 使用主題橘色 */
+  color:white;
+  /* Enhanced shadow */
+  box-shadow:0 6px 15px rgba(255, 152, 0, 0.3); /* 橘色陰影 */
+}
+.btn.primary:hover{background:#fb8c00} /* Slightly darker hover for orange */
+
+/* subtle 按鈕美化 (輔助按鈕) */
+.btn.subtle{
+  background:var(--soft); /* 柔和淺橘色背景 */
+  color:var(--primary); /* 深橘色文字 */
+  border:1px solid var(--accent); /* 主題橘色邊框 */
+  padding:12px 15px;
+  margin-top:15px; 
+}
+.btn.subtle:hover{background:#ffcc80} /* Lighter orange for hover */
+
+.list{margin-top:8px}
+.item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:12px;
+  border-radius:10px;
+  background:var(--paper); /* 清潔的白色背景 */
+  border:1px solid var(--soft);
+  box-shadow:0 2px 5px rgba(0,0,0,0.03); /* 輕微陰影 */
+  /* 增加列表項目間距 */
+  margin-bottom:10px; 
+  font-size:1em;
+}
+.item .name{font-weight:600}
+.item .meta{display:flex;gap:12px;align-items:center;font-size:0.9em} 
+
+/* 刪除按鈕 (紅色強調) */
+.item .del{
+  background:var(--bg); 
+  border:1px solid #c74e39; /* 紅色邊框 */
+  color:#c74e39; /* 紅色文字 */
+  cursor:pointer;
+  padding:4px 10px; 
+  font-size:0.9em;
+  border-radius:6px;
+  transition: all 0.2s;
+}
+.item .del:hover{
+  background: #c74e39; /* Hover時反轉顏色 */
+  color: white;
+}
+
+.right{margin-top:12px;text-align:right;font-weight:700}
+.summary{font-size:1em;color:var(--muted)}
+
+/* Deficit Card (視覺強調) */
+.deficit{margin-top:15px;border-radius:12px;padding:15px;text-align:center}
+.deficit.neutral{
+    background:linear-gradient(180deg,#fff,#f7faf6);
+    color:var(--primary); /* 改為主要顏色 */
+    border:1px solid var(--accent);
+}
+.deficit.good{
+    /* 調整此處的漸變色，使其更亮 */
+    background:linear-gradient(180deg, #8bc34a, #689f38); /* 更亮、更飽和的綠色 (維持綠色，因為這是「達成」的狀態) */
+    color:white; /* 文字為白色，確保可讀性 */
+    font-weight:700
+}
+.deficit.bad{
+    background:linear-gradient(180deg, #c74e39, #a03c2e); 
+    color:white; /* 文字為白色，確保可讀性 */
+    font-weight:700
+}
+.defVal{font-size:2em;margin-bottom:4px}
+
+.food-search-results button.item{
+  width:100%;
+  text-align:left;
+  background:var(--paper);
+  border:1px solid var(--soft);
+}
+
+.month-card .item{cursor:default}
+
+.hidden{display:none!important}
+
+.foot{text-align:center;padding:20px 0;color:var(--muted);font-size:0.8em}

@@ -37,6 +37,7 @@
     {"name": "蘿蔔糕 (2塊)", "cal": 250},
     {"name": "蘿蔔糕加蛋 (2塊)", "cal": 320}, 
     {"name": "法式吐司 (2片)", "cal": 280},
+    // 注意：這裡仍使用「蔥」，請手動或告訴我是否要改為「葱」
     {"name": "煎蔥蛋 (1顆蛋量)", "cal": 150}, 
     {"name": "煎雙蔥蛋 (2顆蛋量)", "cal": 220}, 
     {"name": "熱狗 (2條)", "cal": 180}, 
@@ -141,8 +142,9 @@
     {"name": "7-11 凱薩沙拉", "cal": 200},
     {"name": "7-11 大亨堡 (熱狗+醬)", "cal": 380},
     
-    // === 蛋白質/蔬菜 (已優化) ===
+    // === 蛋白質/蔬菜 (已優化，並加入牛奶) ===
     {"name": "無糖豆漿 (500ml)", "cal": 150}, 
+    {"name": "全脂牛奶 (1杯/240ml)", "cal": 150}, 
     {"name": "雞胸肉 (100g, 水煮)", "cal": 165},
     {"name": "鮭魚 (100g, 烤)", "cal": 208},
     {"name": "豆腐 (100g)", "cal": 76},
@@ -209,11 +211,11 @@
     let t = 0;
 
     if(e.type==='steps'){ 
-      // 1. 步數消耗：總步數 * (體重 * 0.00045) 卡 (針對 98kg 進行優化)
+      // 1. 步數消耗：總步數 * (體重 * 0.00045) 卡 
       const totalSteps = e.value || 0;
       t += totalSteps * (weight * 0.00045); 
       
-      // 2. 超慢跑消耗：分鐘數 * (體重 * 0.062) 卡 (針對 98kg 進行優化)
+      // 2. 超慢跑消耗：分鐘數 * (體重 * 0.062) 卡 
       if(e.jog) {
         t += e.jog * (weight * 0.062); 
       }
@@ -227,11 +229,22 @@
   function calcTotalExpenditure(){ return (state.bmr || 0) + calcTotalBurned(); }
   function calcDeficit(){ return calcTotalExpenditure() - calcTotalIntake(); }
 
-  // Label generation logic
+  // Label generation logic (已修正，確保顯示總消耗卡路里)
   function exLabel(e){ 
-    if(e.type==='steps') return `總步數 ${e.value.toLocaleString()} 步` + (e.jog?` + 超慢跑 ${e.jog} 分鐘(額外熱量)`:''); 
-    return `HIIT (${e.value} 卡)`; 
+    const burned = calcEx(e);
+    let label = '';
+    if(e.type==='steps') {
+        label = `總步數 ${e.value.toLocaleString()} 步`;
+        if(e.jog) {
+            label += ` + 超慢跑 ${e.jog} 分鐘(額外熱量)`;
+        }
+    } else {
+        label = `HIIT/其他消耗`;
+    }
+    // 確保 label 顯示計算後的熱量，讓使用者知道這次運動實際消耗多少
+    return label + ` (總消耗 ${burned.toLocaleString()} 卡)`;
   }
+
   function foodLabel(f){ return f.name + ` (${f.cal} 卡)`; }
 
   // State management
@@ -284,7 +297,7 @@
 
     qs('#displayIntake').textContent = totalIntake.toLocaleString();
     qs('#totalExpenditure').textContent = totalExpenditure.toLocaleString();
-    qs('#bmrLine').textContent = `BMR ${state.bmr.toLocaleString()} + 運動 ${totalBurned.toLocaleString()}`;
+    qs('#bmrLine').textContent = `BMR ${state.bmr.toLocaleString()} + 運動 ${totalBurned.toLocaleString()} 卡`; // 加上 卡 單位
 
     const deficitCard = qs('#deficitCard');
     qs('#deficitValue').textContent = `${deficit > 0 ? '+' : ''}${deficit.toLocaleString()}`;
@@ -293,12 +306,16 @@
     if(deficit > 0){
       deficitCard.classList.add('good');
       qs('#deficitText').textContent = '✅ 達成熱量赤字！';
-    } else {
+    } else if (deficit < 0) { // 新增未達赤字判斷
       deficitCard.classList.add('bad');
-      qs('#deficitText').textContent = '❌ 未達熱量赤字';
+      qs('#deficitText').textContent = '❌ 熱量超標了';
+    } else {
+        deficitCard.classList.add('neutral');
+        qs('#deficitText').textContent = '尚未達標';
     }
   }
-
+  
+  // RENDER MONTHLY (已新增刪除按鈕功能)
   function renderMonth(){
     const monthStats = qs('#monthStats');
     monthStats.innerHTML='';
@@ -311,11 +328,24 @@
       const r = state.monthly[k];
       const el = qs('#monthTpl').content.cloneNode(true);
       el.querySelector('strong').textContent = r.date;
-      el.querySelector('.muted').textContent = `攝取 ${r.intake.toLocaleString()} 卡 · 消耗 ${r.bmr.toLocaleString()} + ${r.burned.toLocaleString()} 卡`;
+      el.querySelector('.muted').textContent = `攝取 ${r.intake.toLocaleString()} 卡 · 消耗 ${r.bmr.toLocaleString()} + ${r.burned.toLocaleString()} 運動`;
       
       const deficitDiv = el.querySelector('.meta div');
       deficitDiv.className = r.deficit > 0 ? 'good' : 'bad';
       deficitDiv.textContent = `${r.deficit > 0 ? '+' : ''}${r.deficit.toLocaleString()} 卡`;
+      
+      // 新增刪除按鈕
+      const delBtn = document.createElement('button');
+      delBtn.textContent = '刪除';
+      delBtn.className = 'del';
+      delBtn.style.marginLeft = '12px'; // 稍微間隔
+      delBtn.addEventListener('click', ()=>{
+          if(confirm(`確定要刪除 ${r.date} 的記錄嗎？`)){
+              delete state.monthly[k];
+              updateAndSave(); // 重新渲染和儲存
+          }
+      });
+      el.querySelector('.meta').appendChild(delBtn); // 將刪除按鈕加入 meta 區塊
       
       monthStats.appendChild(el);
     });
@@ -402,6 +432,7 @@
     } else if (type === 'hiit' && value > 0) {
       state.exercises.push({type, value});
       qs('#exValue').value = '';
+      qs('#jogMin').value = ''; // 清空 jogMin 避免錯誤
       updateAndSave();
     } else {
       alert('請輸入有效的運動數據');
@@ -416,7 +447,8 @@
         return;
     }
 
-    const date = new Date().toLocaleDateString();
+    // 格式化日期以符合儲存鍵值，並確保可排序
+    const date = new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, '/');
     const rec = {date, intake:calcTotalIntake(), burned:calcTotalBurned(), bmr:state.bmr, deficit:calcDeficit(), foods:state.foods, exercises:state.exercises};
     state.monthly[date]=rec; 
     
@@ -451,6 +483,8 @@
     hits.forEach(h=>{ 
       const b = document.createElement('button'); 
       b.className='item'; 
+      // 添加 food-search-results class 以確保樣式正確
+      b.classList.add('food-search-results');
       b.innerHTML = `<div>${h.name}</div><div class='meta'><div>${h.cal} 卡</div></div>`; 
       
       b.addEventListener('click', ()=>{ 
@@ -462,29 +496,6 @@
       searchResults.appendChild(b); 
     }); 
   });
-
-
-  function renderMonth(){ 
-    const monthStats = qs('#monthStats'); 
-    monthStats.innerHTML=''; 
-    const keys = Object.keys(state.monthly).sort().reverse(); 
-    if(!keys.length){ 
-      monthStats.innerHTML='<div class="muted">本月還沒有記錄</div>'; 
-      return; 
-    } 
-    keys.forEach(k=>{ 
-      const r = state.monthly[k]; 
-      const el = qs('#monthTpl').content.cloneNode(true);
-      el.querySelector('strong').textContent = r.date;
-      el.querySelector('.muted').textContent = `攝取 ${r.intake.toLocaleString()} 卡 · 消耗 ${r.bmr.toLocaleString()} + ${r.burned.toLocaleString()} 卡`;
-      
-      const deficitDiv = el.querySelector('.meta div');
-      deficitDiv.className = r.deficit > 0 ? 'good' : 'bad';
-      deficitDiv.textContent = `${r.deficit > 0 ? '+' : ''}${r.deficit.toLocaleString()} 卡`;
-      
-      monthStats.appendChild(el); 
-    }); 
-  }
 
 
 })();

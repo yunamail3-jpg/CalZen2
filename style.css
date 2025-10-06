@@ -18,11 +18,16 @@
   --bg: #f9faf9; /* 淺色背景 */
   --paper: #ffffff; /* 卡片白色背景 */
   --muted: #4a4a3f; /* 深色文字/輔助色 */
-  --accent: #ff9800; /* 主題橘色 (原 --accent: #a3b18a;) */
-  --soft: #ffe0b2; /* 柔和淺橘色 (原 --soft: #dfeede;) */
+  --accent: #a3b18a; /* 主題綠色 (保留作為柔和邊框色) */
+  --soft: #dfeede; /* 柔和淺綠色 */
   --glass: rgba(255,255,255,0.7);
   --text: #3f4a42; /* 主要深色文字 */
-  --primary: #e65100; /* 主要按鈕文字深橘色 (原 --primary: #587d42;) */
+  --primary: #587d42; /* 主要文字深綠色 */
+  
+  /* === 新增亮色系變數供按鈕和卡片使用 === */
+  --bright-orange: #FF9933; /* 亮橘色 for 儲存按鈕 */
+  --bright-green: #6FCF97;  /* 達成赤字卡片/主要綠色按鈕的鮮綠色 */
+  --light-green: #E0F2E9; /* 淺綠色背景 for 輔助按鈕 */
 }
 
 /* 移除 @media (prefers-color-scheme: dark) 區塊，以防止切換到深色模式 */
@@ -68,14 +73,13 @@ h2{font-size:1.4em}
 }
 .card-body{padding:15px}
 
-/* Flex 排版優化 (移除原先錯誤的 .row 覆蓋，修正排版問題) */
+/* Flex 排版優化 */
 .row{
   display:flex;
   /* 增加 row 內元件間距 */
   gap: 12px; 
   /* 增加 row 底部間距 */
   margin-bottom:12px; 
-  flex-wrap: wrap; /* 允許換行 */
 }
 .grid{
   display:flex;
@@ -85,10 +89,7 @@ h2{font-size:1.4em}
   margin-bottom:12px; 
   flex-wrap:wrap
 }
-.grid > *{
-  flex:1 1 100%; /* 預設佔滿寬度 */
-  min-width: 120px; /* 最小寬度確保在空間足夠時可以水平排列 */
-}
+.grid > *{flex:1}
 
 /* 確保標籤不會被擠壓而斷行 */
 .row label{
@@ -97,16 +98,15 @@ h2{font-size:1.4em}
   white-space: nowrap; /* 強制不換行 */
 }
 
-/* 統一 Select 和 Input 欄位樣式 (美化輸入框) */
+/* 統一 Select 和 Input 欄位樣式 */
 input[type="number"], input[type="text"], select{
   padding:12px; /* 增加輸入框高度 */
   border-radius:8px;
-  border:1px solid #d0d7d0; /* 略微深色的邊框 */
+  border:1px solid var(--soft);
   flex:1;
-  background:var(--paper); /* 白色背景 */
+  background:var(--bg);
   color:var(--text);
   font-size:1em;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05); /* 柔和內陰影 */
   
   /* 針對 Select 樣式統一的關鍵修正 */
   -webkit-appearance: none; 
@@ -119,36 +119,43 @@ input[type="number"], input[type="text"], select{
 }
 input::placeholder{color:rgba(74,74,63,0.5)}
 
-/* 按鈕美化 */
 .btn{
   border:none;
   padding:12px 15px;
-  border-radius:12px; /* 圓角加大 */
+  border-radius:10px;
   font-weight:600;
   cursor:pointer;
-  transition:all 0.2s;
+  transition:background-color 0.2s;
   width:100%;
   /* 增加按鈕上方的間距 */
-  margin-top:15px; 
+  margin-top:12px; 
   font-size:1em; 
 }
-.btn.primary{
-  background:var(--accent); /* 使用主題橘色 */
-  color:white;
-  /* Enhanced shadow */
-  box-shadow:0 6px 15px rgba(255, 152, 0, 0.3); /* 橘色陰影 */
-}
-.btn.primary:hover{background:#fb8c00} /* Slightly darker hover for orange */
 
-/* subtle 按鈕美化 (輔助按鈕) */
-.btn.subtle{
-  background:var(--soft); /* 柔和淺橘色背景 */
-  color:var(--primary); /* 深橘色文字 */
-  border:1px solid var(--accent); /* 主題橘色邊框 */
-  padding:12px 15px;
-  margin-top:15px; 
+/* 1. 主要按鈕 (儲存記錄) - 亮橘色 */
+.btn.primary{
+  background:var(--bright-orange); 
+  color:white;
+  box-shadow:0 4px 10px rgba(255,153,51,0.4); 
 }
-.btn.subtle:hover{background:#ffcc80} /* Lighter orange for hover */
+.btn.primary:hover{background:#e0842e} 
+
+/* 2. 輔助按鈕 (BMR計算, 新增運動, 手動新增食物) - 亮綠色 */
+.btn.subtle{
+  /* 使用較亮的淺綠色作為背景 */
+  background:var(--light-green); 
+  /* 使用深綠色作為文字顏色 */
+  color:var(--primary); 
+  /* 取消虛線邊框，改為實線淺綠色 */
+  border:1px solid var(--bright-green); 
+  padding:12px 15px;
+  margin-top:12px; 
+  box-shadow:0 2px 5px rgba(0,0,0,0.05); 
+}
+.btn.subtle:hover{
+  /* Hover時稍微加深背景 */
+  background:#c9e6d8; 
+}
 
 .list{margin-top:8px}
 .item{
@@ -157,53 +164,36 @@ input::placeholder{color:rgba(74,74,63,0.5)}
   align-items:center;
   padding:12px;
   border-radius:10px;
-  background:var(--paper); /* 清潔的白色背景 */
-  border:1px solid var(--soft);
-  box-shadow:0 2px 5px rgba(0,0,0,0.03); /* 輕微陰影 */
+  background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.4));
+  border:1px solid rgba(99,102,81,0.03);
   /* 增加列表項目間距 */
   margin-bottom:10px; 
   font-size:1em;
 }
 .item .name{font-weight:600}
 .item .meta{display:flex;gap:12px;align-items:center;font-size:0.9em} 
-
-/* 刪除按鈕 (紅色強調) */
-.item .del{
-  background:var(--bg); 
-  border:1px solid #c74e39; /* 紅色邊框 */
-  color:#c74e39; /* 紅色文字 */
-  cursor:pointer;
-  padding:4px 10px; 
-  font-size:0.9em;
-  border-radius:6px;
-  transition: all 0.2s;
-}
-.item .del:hover{
-  background: #c74e39; /* Hover時反轉顏色 */
-  color: white;
-}
+.item .del{background:transparent;border:none;color:#c74e39;cursor:pointer;padding:6px;font-size:1em}
 
 .right{margin-top:12px;text-align:right;font-weight:700}
 .summary{font-size:1em;color:var(--muted)}
 
-/* Deficit Card (視覺強調) */
 .deficit{margin-top:15px;border-radius:12px;padding:15px;text-align:center}
-.deficit.neutral{
-    background:linear-gradient(180deg,#fff,#f7faf6);
-    color:var(--primary); /* 改為主要顏色 */
-    border:1px solid var(--accent);
-}
+.deficit.neutral{background:linear-gradient(180deg,#fff,#f7faf6);color:var(--muted);border:1px solid rgba(99,102,81,0.1)}
+
+/* 3. 熱量赤字達成卡片 - 亮綠色 */
 .deficit.good{
-    /* 調整此處的漸變色，使其更亮 */
-    background:linear-gradient(180deg, #8bc34a, #689f38); /* 更亮、更飽和的綠色 (維持綠色，因為這是「達成」的狀態) */
-    color:white; /* 文字為白色，確保可讀性 */
-    font-weight:700
+  background:linear-gradient(180deg, var(--bright-green), #56b680); 
+  color:white; 
+  font-weight:700
 }
+
+/* 4. 熱量赤字未達卡片 - 亮紅色 (保持警示色) */
 .deficit.bad{
-    background:linear-gradient(180deg, #c74e39, #a03c2e); 
-    color:white; /* 文字為白色，確保可讀性 */
-    font-weight:700
+  background:linear-gradient(180deg, #ffc4c4, #f7a6a6); 
+  color:#c74e39;
+  font-weight:700
 }
+
 .defVal{font-size:2em;margin-bottom:4px}
 
 .food-search-results button.item{
@@ -218,3 +208,9 @@ input::placeholder{color:rgba(74,74,63,0.5)}
 .hidden{display:none!important}
 
 .foot{text-align:center;padding:20px 0;color:var(--muted);font-size:0.8em}
+
+.row {
+  display: flex;
+  flex-direction: column; 
+  gap: 8px;
+}
